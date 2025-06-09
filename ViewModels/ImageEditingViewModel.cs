@@ -18,6 +18,7 @@ public class ImageEditingViewModel : INotifyPropertyChanged
     private ImageSource? _editedImageSource;
     private Stream? _originalImageStream;
     private string _originalImageFileName = string.Empty;
+    private byte[]? _lastEditedImageBytes;
 
     public ImageEditingViewModel(OpenAIService openAIService)
     {
@@ -25,6 +26,7 @@ public class ImageEditingViewModel : INotifyPropertyChanged
         SelectImageCommand = new Command(async () => await SelectImageAsync());
         TakePhotoCommand = new Command(async () => await TakePhotoAsync());
         EditImageCommand = new Command(async () => await EditImageAsync(), () => CanEditImage());
+        ShareImageCommand = new Command(async () => await ShareImageAsync(), () => CanShareImage());
     }
 
     public string Prompt
@@ -67,6 +69,7 @@ public class ImageEditingViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(ShowImageArea));
                 OnPropertyChanged(nameof(ShowWelcomeMessage));
                 ((Command)EditImageCommand).ChangeCanExecute();
+                ((Command)ShareImageCommand).ChangeCanExecute();
             }
         }
     }
@@ -112,6 +115,7 @@ public class ImageEditingViewModel : INotifyPropertyChanged
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ShowImageArea));
                 OnPropertyChanged(nameof(ShowWelcomeMessage));
+                ((Command)ShareImageCommand).ChangeCanExecute();
             }
         }
     }
@@ -149,10 +153,16 @@ public class ImageEditingViewModel : INotifyPropertyChanged
     public ICommand SelectImageCommand { get; }
     public ICommand TakePhotoCommand { get; }
     public ICommand EditImageCommand { get; }
+    public ICommand ShareImageCommand { get; }
 
     private bool CanEditImage()
     {
         return !IsLoading && !string.IsNullOrWhiteSpace(Prompt) && IsOriginalImageVisible && _originalImageStream != null;
+    }
+
+    private bool CanShareImage()
+    {
+        return !IsLoading && IsEditedImageVisible && _lastEditedImageBytes != null;
     }
 
     private async Task SelectImageAsync()
@@ -213,6 +223,7 @@ public class ImageEditingViewModel : INotifyPropertyChanged
             OriginalImageSource = ImageSource.FromStream(() => displayStream);
             IsOriginalImageVisible = true;
             IsEditedImageVisible = false; // Hide previous edited image
+            _lastEditedImageBytes = null; // Clear previous edited image data
             
             HasError = false;
             StatusMessage = "Image loaded successfully! Enter a prompt to edit it.";
@@ -267,8 +278,8 @@ public class ImageEditingViewModel : INotifyPropertyChanged
                 
                 try
                 {
-                    var imageBytes = Convert.FromBase64String(base64Json);
-                    EditedImageSource = ImageSource.FromStream(() => new MemoryStream(imageBytes));
+                    _lastEditedImageBytes = Convert.FromBase64String(base64Json);
+                    EditedImageSource = ImageSource.FromStream(() => new MemoryStream(_lastEditedImageBytes));
                     IsEditedImageVisible = true;
                     StatusMessage = "Image edited successfully!";
                 }
@@ -292,6 +303,34 @@ public class ImageEditingViewModel : INotifyPropertyChanged
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private async Task ShareImageAsync()
+    {
+        if (_lastEditedImageBytes == null)
+            return;
+
+        try
+        {
+            // Create a temporary file for sharing
+            var fileName = $"GoyIA_Edited_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+            var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            
+            await File.WriteAllBytesAsync(filePath, _lastEditedImageBytes);
+
+            var shareRequest = new ShareFileRequest
+            {
+                Title = "Share AI Edited Image",
+                File = new ShareFile(filePath)
+            };
+
+            await Share.RequestAsync(shareRequest);
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            StatusMessage = $"Error sharing image: {ex.Message}";
         }
     }
 

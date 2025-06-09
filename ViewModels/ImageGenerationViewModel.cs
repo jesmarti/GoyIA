@@ -14,11 +14,13 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
     private bool _hasError = false;
     private bool _isImageVisible = false;
     private ImageSource? _generatedImageSource;
+    private byte[]? _lastGeneratedImageBytes;
 
     public ImageGenerationViewModel(OpenAIService openAIService)
     {
         _openAIService = openAIService;
         GenerateImageCommand = new Command(async () => await GenerateImageAsync(), () => CanGenerateImage());
+        ShareImageCommand = new Command(async () => await ShareImageAsync(), () => CanShareImage());
     }
 
     public string Prompt
@@ -61,6 +63,7 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(ShowImageArea));
                 OnPropertyChanged(nameof(ShowWelcomeMessage));
                 ((Command)GenerateImageCommand).ChangeCanExecute();
+                ((Command)ShareImageCommand).ChangeCanExecute();
             }
         }
     }
@@ -91,6 +94,7 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ShowImageArea));
                 OnPropertyChanged(nameof(ShowWelcomeMessage));
+                ((Command)ShareImageCommand).ChangeCanExecute();
             }
         }
     }
@@ -113,10 +117,16 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
     public bool ShowWelcomeMessage => !IsLoading && !IsImageVisible;
 
     public ICommand GenerateImageCommand { get; }
+    public ICommand ShareImageCommand { get; }
 
     private bool CanGenerateImage()
     {
         return !IsLoading && !string.IsNullOrWhiteSpace(Prompt);
+    }
+
+    private bool CanShareImage()
+    {
+        return !IsLoading && IsImageVisible && _lastGeneratedImageBytes != null;
     }
 
     private async Task GenerateImageAsync()
@@ -157,8 +167,8 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
                 
                 try
                 {
-                    var imageBytes = Convert.FromBase64String(base64Json);
-                    GeneratedImageSource = ImageSource.FromStream(() => new MemoryStream(imageBytes));
+                    _lastGeneratedImageBytes = Convert.FromBase64String(base64Json);
+                    GeneratedImageSource = ImageSource.FromStream(() => new MemoryStream(_lastGeneratedImageBytes));
                     IsImageVisible = true;
                     StatusMessage = "Image generated successfully!";
                 }
@@ -182,6 +192,34 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private async Task ShareImageAsync()
+    {
+        if (_lastGeneratedImageBytes == null)
+            return;
+
+        try
+        {
+            // Create a temporary file for sharing
+            var fileName = $"GoyIA_Generated_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+            var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            
+            await File.WriteAllBytesAsync(filePath, _lastGeneratedImageBytes);
+
+            var shareRequest = new ShareFileRequest
+            {
+                Title = "Share AI Generated Image",
+                File = new ShareFile(filePath)
+            };
+
+            await Share.RequestAsync(shareRequest);
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            StatusMessage = $"Error sharing image: {ex.Message}";
         }
     }
 
