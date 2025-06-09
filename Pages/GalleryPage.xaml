@@ -84,41 +84,31 @@
                 </StackLayout>
 
                 <!-- Images Grid (3-column Instagram style) -->
-                <CollectionView ItemsSource="{Binding Images}"
-                                IsVisible="{Binding HasImages}"
-                                Margin="5">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" 
-                                         Span="3" 
-                                         HorizontalItemSpacing="5" 
-                                         VerticalItemSpacing="5" />
-                    </CollectionView.ItemsLayout>
+                <!-- Container to limit width on desktop while keeping mobile responsive -->
+                <StackLayout HorizontalOptions="Center">
+                    <CollectionView ItemsSource="{Binding Images}"
+                                    IsVisible="{Binding HasImages}"
+                                    Margin="5"
+                                    MaximumWidthRequest="400"
+                                    HorizontalOptions="Center">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" 
+                                             Span="3" 
+                                             HorizontalItemSpacing="5" 
+                                             VerticalItemSpacing="5" />
+                        </CollectionView.ItemsLayout>
                     
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:GalleryImage">
                             <Border BackgroundColor="White"
                                     Stroke="#E0E0E0"
                                     StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 8">
+                                    StrokeShape="RoundRectangle 8"
+                                    HeightRequest="120"
+                                    WidthRequest="120">
                                 <Grid>
-                                    <Image HeightRequest="120"
-                                           WidthRequest="120"
-                                           Aspect="AspectFill"
+                                    <Image Aspect="AspectFill"
                                            Source="{Binding FilePath, Converter={StaticResource GalleryImageSourceConverter}}" />
-                                    
-                                    <!-- Type Badge -->
-                                    <Border BackgroundColor="#6200EE"
-                                            StrokeShape="RoundRectangle 8"
-                                            HorizontalOptions="Start"
-                                            VerticalOptions="Start"
-                                            Margin="5"
-                                            Opacity="0.9">
-                                        <Label Text="{Binding Type, StringFormat='{0:U}'}"
-                                               FontSize="10"
-                                               FontAttributes="Bold"
-                                               TextColor="White"
-                                               Margin="6,2" />
-                                    </Border>
                                     
                                     <!-- Tap Gesture -->
                                     <Grid.GestureRecognizers>
@@ -130,6 +120,7 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+                </StackLayout>
 
             </StackLayout>
         </ScrollView>
@@ -175,11 +166,6 @@
                     
                     <!-- Image Details -->
                     <StackLayout Spacing="8">
-                        <Label Text="{Binding SelectedImage.Type, StringFormat='Type: {0:U}'}"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#333333" />
-                        
                         <Label Text="{Binding SelectedImage.DateCreated, StringFormat='Created: {0:MMM dd, yyyy HH:mm}'}"
                                FontSize="12"
                                TextColor="#666666" />
