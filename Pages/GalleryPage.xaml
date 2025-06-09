@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="GoyIA.Pages.GalleryPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:GoyIA.Models"
+             xmlns:converters="clr-namespace:GoyIA.Converters"
+             Title="Gallery"
+             BackgroundColor="#F5F5F5">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:GalleryImageSourceConverter x:Key="GalleryImageSourceConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Main Gallery Content -->
+        <ScrollView>
+            <StackLayout Padding="10" Spacing="10">
+                
+                <!-- Header with Title and Refresh -->
+                <StackLayout Orientation="Horizontal" 
+                             HorizontalOptions="FillAndExpand"
+                             Spacing="10"
+                             Margin="10,10,10,0">
+                    <Label Text="🖼️ My Gallery" 
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           TextColor="#6200EE"
+                           VerticalOptions="Center"
+                           HorizontalOptions="StartAndExpand" />
+                    
+                    <Button Text="🔄"
+                            Command="{Binding RefreshCommand}"
+                            BackgroundColor="#6200EE"
+                            TextColor="White"
+                            FontSize="11"
+                            HeightRequest="40"
+                            WidthRequest="40"
+                            CornerRadius="20"
+                            IsEnabled="{Binding IsNotLoading}" />
+                </StackLayout>
+
+                <!-- Loading Indicator -->
+                <StackLayout IsVisible="{Binding IsLoading}"
+                             Spacing="15"
+                             Margin="0,50,0,50">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       Color="#6200EE"
+                                       Scale="1.2" />
+                    <Label Text="Loading your gallery..." 
+                           FontSize="16" 
+                           HorizontalOptions="Center" 
+                           TextColor="#6200EE"
+                           FontAttributes="Italic" />
+                </StackLayout>
+
+                <!-- Error Message -->
+                <Label Text="{Binding StatusMessage}"
+                       FontSize="14"
+                       TextColor="#D32F2F"
+                       IsVisible="{Binding HasError}"
+                       HorizontalOptions="Center"
+                       Margin="20" />
+
+                <!-- Empty State -->
+                <StackLayout IsVisible="{Binding ShowEmptyState}"
+                             Spacing="20"
+                             Margin="0,50,0,50">
+                    <Label Text="📷" 
+                           FontSize="64" 
+                           HorizontalOptions="Center" 
+                           TextColor="#6200EE" />
+                    <Label Text="Your gallery is empty" 
+                           FontSize="18" 
+                           HorizontalOptions="Center" 
+                           TextColor="#6200EE"
+                           FontAttributes="Bold" />
+                    <Label Text="Create some AI images and save them to see them here!" 
+                           FontSize="14" 
+                           HorizontalOptions="Center" 
+                           TextColor="#9E9E9E"
+                           HorizontalTextAlignment="Center" />
+                </StackLayout>
+
+                <!-- Images Grid (3-column Instagram style) -->
+                <CollectionView ItemsSource="{Binding Images}"
+                                IsVisible="{Binding HasImages}"
+                                Margin="5">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" 
+                                         Span="3" 
+                                         HorizontalItemSpacing="5" 
+                                         VerticalItemSpacing="5" />
+                    </CollectionView.ItemsLayout>
+                    
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:GalleryImage">
+                            <Border BackgroundColor="White"
+                                    Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8">
+                                <Grid>
+                                    <Image HeightRequest="120"
+                                           WidthRequest="120"
+                                           Aspect="AspectFill"
+                                           Source="{Binding FilePath, Converter={StaticResource GalleryImageSourceConverter}}" />
+                                    
+                                    <!-- Type Badge -->
+                                    <Border BackgroundColor="#6200EE"
+                                            StrokeShape="RoundRectangle 8"
+                                            HorizontalOptions="Start"
+                                            VerticalOptions="Start"
+                                            Margin="5"
+                                            Opacity="0.9">
+                                        <Label Text="{Binding Type, StringFormat='{0:U}'}"
+                                               FontSize="10"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               Margin="6,2" />
+                                    </Border>
+                                    
+                                    <!-- Tap Gesture -->
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ImageTappedCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Full-Screen Modal for Image View -->
+        <Grid IsVisible="{Binding IsModalVisible}"
+              BackgroundColor="#80000000">
+            
+            <Border BackgroundColor="White"
+                    Stroke="#E0E0E0"
+                    StrokeThickness="2"
+                    StrokeShape="RoundRectangle 12"
+                    Margin="20"
+                    VerticalOptions="Center">
+                
+                <StackLayout Spacing="15" Margin="20">
+                    
+                    <!-- Modal Header -->
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="🖼️ Image Details"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#6200EE"
+                               VerticalOptions="Center"
+                               HorizontalOptions="StartAndExpand" />
+                        
+                        <Button Text="✕"
+                                Command="{Binding CloseModalCommand}"
+                                BackgroundColor="#FF4444"
+                                TextColor="White"
+                                FontSize="16"
+                                HeightRequest="35"
+                                WidthRequest="35"
+                                CornerRadius="17" />
+                    </StackLayout>
+                    
+                    <!-- Full Size Image -->
+                    <Image Source="{Binding SelectedImageSource}"
+                           Aspect="AspectFit"
+                           HeightRequest="300"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
+                    
+                    <!-- Image Details -->
+                    <StackLayout Spacing="8">
+                        <Label Text="{Binding SelectedImage.Type, StringFormat='Type: {0:U}'}"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                        
+                        <Label Text="{Binding SelectedImage.DateCreated, StringFormat='Created: {0:MMM dd, yyyy HH:mm}'}"
+                               FontSize="12"
+                               TextColor="#666666" />
+                        
+                        <Label Text="Prompt:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                        
+                        <Label Text="{Binding SelectedImage.Prompt}"
+                               FontSize="12"
+                               TextColor="#666666"
+                               LineBreakMode="WordWrap" />
+                    </StackLayout>
+                    
+                    <!-- Action Buttons -->
+                    <StackLayout Orientation="Horizontal"
+                                 HorizontalOptions="Center"
+                                 Spacing="10">
+                        <Button Text="💾 Save"
+                                Command="{Binding SaveToDeviceCommand}"
+                                CommandParameter="{Binding SelectedImage}"
+                                BackgroundColor="#2196F3"
+                                TextColor="White"
+                                FontSize="12"
+                                HeightRequest="35"
+                                WidthRequest="70"
+                                CornerRadius="17" />
+                        
+                        <Button Text="📤 Share"
+                                Command="{Binding ShareImageCommand}"
+                                CommandParameter="{Binding SelectedImage}"
+                                BackgroundColor="#4CAF50"
+                                TextColor="White"
+                                FontSize="12"
+                                HeightRequest="35"
+                                WidthRequest="70"
+                                CornerRadius="17" />
+                        
+                        <Button Text="🗑️ Delete"
+                                Command="{Binding DeleteImageCommand}"
+                                CommandParameter="{Binding SelectedImage}"
+                                BackgroundColor="#FF4444"
+                                TextColor="White"
+                                FontSize="12"
+                                HeightRequest="35"
+                                WidthRequest="70"
+                                CornerRadius="17" />
+                    </StackLayout>
+                    
+                </StackLayout>
+            </Border>
+            
+            <!-- Modal Background Tap to Close -->
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseModalCommand}" />
+            </Grid.GestureRecognizers>
+        </Grid>
+
+    </Grid>
+</ContentPage> 

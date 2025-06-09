@@ -21,6 +21,12 @@
             Icon="edit.png"
             ContentTemplate="{DataTemplate pages:ImageEditingPage}"
             Route="ImageEditing" />
+        
+        <ShellContent
+            Title="Gallery"
+            Icon="photo_library.png"
+            ContentTemplate="{DataTemplate pages:GalleryPage}"
+            Route="Gallery" />
     </TabBar>
 
     <!-- FlyoutItems for secondary navigation -->
@@ -34,6 +40,11 @@
             Title="Edit Images"
             ContentTemplate="{DataTemplate pages:ImageEditingPage}"
             Route="FlyoutImageEditing" />
+        
+        <ShellContent
+            Title="Gallery"
+            ContentTemplate="{DataTemplate pages:GalleryPage}"
+            Route="FlyoutGallery" />
     </FlyoutItem>
 
     <FlyoutItem Title="Settings">
