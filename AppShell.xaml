@@ -8,50 +8,151 @@
     Shell.FlyoutBehavior="Flyout"
     Title="GoyIA">
 
+    <!-- Custom Flyout Header -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#6200EE" HeightRequest="200">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <!-- Logo -->
+            <Image Grid.Row="0"
+                   Source="goyia.png"
+                   Aspect="AspectFit"
+                   HeightRequest="120"
+                   WidthRequest="120"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="20" />
+            
+            <!-- App Title and Subtitle -->
+            <StackLayout Grid.Row="1" 
+                         Padding="20,0,20,20"
+                         HorizontalOptions="Center">
+                <Label Text="GoyIA"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
+                <Label Text="AI Image Generator &amp; Editor"
+                       FontSize="14"
+                       TextColor="#E0E0FF"
+                       HorizontalOptions="Center" />
+            </StackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Custom Flyout Footer -->
+    <Shell.FlyoutFooter>
+        <Border BackgroundColor="#F5F5F5" 
+                Stroke="#E0E0E0" 
+                StrokeThickness="1">
+            <StackLayout Padding="20,15" 
+                         Spacing="5"
+                         HorizontalOptions="Center">
+                <Label Text="🤖 Powered by OpenAI"
+                       FontSize="12"
+                       TextColor="#666666"
+                       HorizontalOptions="Center" />
+                <Label Text="Version 1.0"
+                       FontSize="10"
+                       TextColor="#999999"
+                       HorizontalOptions="Center" />
+            </StackLayout>
+        </Border>
+    </Shell.FlyoutFooter>
+
     <!-- Main TabBar for primary navigation -->
     <TabBar>
         <ShellContent
             Title="Generate"
-            Icon="add_circle.png"
             ContentTemplate="{DataTemplate pages:ImageGenerationPage}"
-            Route="ImageGeneration" />
+            Route="ImageGeneration">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="✨" 
+                                 Size="24" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
         
         <ShellContent
             Title="Edit"
-            Icon="edit.png"
             ContentTemplate="{DataTemplate pages:ImageEditingPage}"
-            Route="ImageEditing" />
+            Route="ImageEditing">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="✏️" 
+                                 Size="24" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
         
         <ShellContent
             Title="Gallery"
-            Icon="photo_library.png"
             ContentTemplate="{DataTemplate pages:GalleryPage}"
-            Route="Gallery" />
+            Route="Gallery">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="🖼️" 
+                                 Size="24" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 
     <!-- FlyoutItems for secondary navigation -->
-    <FlyoutItem Title="Navigation">
+    <FlyoutItem Title="🎨 Navigation">
         <ShellContent
-            Title="Generate Images"
+            Title="✨ Generate Images"
             ContentTemplate="{DataTemplate pages:ImageGenerationPage}"
-            Route="FlyoutImageGeneration" />
+            Route="FlyoutImageGeneration">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="✨" 
+                                 Size="20" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
         
         <ShellContent
-            Title="Edit Images"
+            Title="✏️ Edit Images"
             ContentTemplate="{DataTemplate pages:ImageEditingPage}"
-            Route="FlyoutImageEditing" />
+            Route="FlyoutImageEditing">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="✏️" 
+                                 Size="20" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
         
         <ShellContent
-            Title="Gallery"
+            Title="🖼️ Gallery"
             ContentTemplate="{DataTemplate pages:GalleryPage}"
-            Route="FlyoutGallery" />
+            Route="FlyoutGallery">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="🖼️" 
+                                 Size="20" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
     </FlyoutItem>
 
-    <FlyoutItem Title="Settings">
+    <FlyoutItem Title="⚙️ Settings">
         <ShellContent
-            Title="Settings"
+            Title="⚙️ Settings"
             ContentTemplate="{DataTemplate pages:SettingsPage}"
-            Route="Settings" />
+            Route="Settings">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Segoe UI Emoji" 
+                                 Glyph="⚙️" 
+                                 Size="20" 
+                                 Color="#6200EE" />
+            </ShellContent.Icon>
+        </ShellContent>
     </FlyoutItem>
 
 </Shell>

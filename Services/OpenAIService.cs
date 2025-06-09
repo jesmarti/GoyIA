@@ -26,11 +26,28 @@ public class OpenAIService
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
     }
 
+    private string GetQualityString()
+    {
+        var qualityString = Preferences.Get("Image_Quality", "Medium");
+        if (Enum.TryParse<ImageQuality>(qualityString, out var quality))
+        {
+            return quality switch
+            {
+                ImageQuality.Low => "low",
+                ImageQuality.Medium => "medium",
+                ImageQuality.High => "high",
+                _ => "medium"
+            };
+        }
+        return "medium";
+    }
+
     public async Task<ImageGenerationResponse?> GenerateImageAsync(string prompt)
     {
         var request = new ImageGenerationRequest
         {
-            Prompt = prompt
+            Prompt = prompt,
+            Quality = GetQualityString()
         };
 
         var json = JsonSerializer.Serialize(request, _jsonOptions);
@@ -84,7 +101,7 @@ public class OpenAIService
             formContent.Add(new StringContent("gpt-image-1"), "model");
             formContent.Add(new StringContent(prompt), "prompt");
             formContent.Add(new StringContent("1024x1024"), "size");
-            formContent.Add(new StringContent("low"), "quality");
+            formContent.Add(new StringContent(GetQualityString()), "quality");
             
             var response = await _httpClient.PostAsync("images/edits", formContent);
             

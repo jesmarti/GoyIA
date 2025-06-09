@@ -36,6 +36,50 @@
                 </StackLayout>
             </Border>
 
+            <Border BackgroundColor="White" 
+                    Stroke="#E0E0E0" 
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+                <StackLayout Padding="20" Spacing="15">
+                    <Label Text="Image Quality" 
+                           FontSize="16" 
+                           FontAttributes="Bold" />
+                    
+                    <StackLayout Spacing="10">
+                        <StackLayout Orientation="Horizontal" Spacing="10">
+                            <RadioButton GroupName="ImageQuality" 
+                                         IsChecked="{Binding IsLowQualitySelected}" />
+                            <Label Text="Low" 
+                                   FontSize="14" 
+                                   TextColor="Black"
+                                   VerticalOptions="Center" />
+                        </StackLayout>
+                        
+                        <StackLayout Orientation="Horizontal" Spacing="10">
+                            <RadioButton GroupName="ImageQuality" 
+                                         IsChecked="{Binding IsMediumQualitySelected}" />
+                            <Label Text="Medium" 
+                                   FontSize="14" 
+                                   TextColor="Black"
+                                   VerticalOptions="Center" />
+                        </StackLayout>
+                        
+                        <StackLayout Orientation="Horizontal" Spacing="10">
+                            <RadioButton GroupName="ImageQuality" 
+                                         IsChecked="{Binding IsHighQualitySelected}" />
+                            <Label Text="High" 
+                                   FontSize="14" 
+                                   TextColor="Black"
+                                   VerticalOptions="Center" />
+                        </StackLayout>
+                    </StackLayout>
+                    
+                    <Label Text="Higher quality images take longer to generate and may consume more API credits." 
+                           FontSize="12" 
+                           TextColor="#9E9E9E" />
+                </StackLayout>
+            </Border>
+
             <Button Text="Save Settings"
                     Command="{Binding SaveSettingsCommand}"
                     BackgroundColor="#6200EE"

@@ -5,7 +5,7 @@
              Title="Edit Image"
              BackgroundColor="#F5F5F5">
 
-    <ScrollView>
+    <ScrollView x:Name="MainScrollView">
         <StackLayout Padding="20" Spacing="20">
 
             <!-- Image Selection Buttons at Top -->
@@ -101,7 +101,8 @@
             </StackLayout>
 
             <!-- Loading Animation - appears below prompt when processing -->
-            <StackLayout IsVisible="{Binding IsLoading}"
+            <StackLayout x:Name="LoadingAnimationSection"
+                         IsVisible="{Binding IsLoading}"
                          Spacing="20"
                          Margin="0,10,0,10">
                 <ActivityIndicator IsRunning="{Binding IsLoading}"
