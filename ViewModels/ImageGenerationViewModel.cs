@@ -24,7 +24,6 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
         GenerateImageCommand = new Command(async () => await GenerateImageAsync(), () => CanGenerateImage());
         ShareImageCommand = new Command(async () => await ShareImageAsync(), () => CanShareImage());
         SaveToGalleryCommand = new Command(async () => await SaveToGalleryAsync(), () => CanSaveToGallery());
-        SaveToDeviceCommand = new Command(async () => await SaveToDeviceAsync(), () => CanSaveToDevice());
     }
 
     public string Prompt
@@ -69,7 +68,6 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
                 ((Command)GenerateImageCommand).ChangeCanExecute();
                 ((Command)ShareImageCommand).ChangeCanExecute();
                 ((Command)SaveToGalleryCommand).ChangeCanExecute();
-                ((Command)SaveToDeviceCommand).ChangeCanExecute();
             }
         }
     }
@@ -102,7 +100,6 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(ShowWelcomeMessage));
                 ((Command)ShareImageCommand).ChangeCanExecute();
                 ((Command)SaveToGalleryCommand).ChangeCanExecute();
-                ((Command)SaveToDeviceCommand).ChangeCanExecute();
             }
         }
     }
@@ -127,7 +124,6 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
     public ICommand GenerateImageCommand { get; }
     public ICommand ShareImageCommand { get; }
     public ICommand SaveToGalleryCommand { get; }
-    public ICommand SaveToDeviceCommand { get; }
 
     private bool CanGenerateImage()
     {
@@ -140,11 +136,6 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
     }
 
     private bool CanSaveToGallery()
-    {
-        return !IsLoading && IsImageVisible && _lastGeneratedImageBytes != null;
-    }
-
-    private bool CanSaveToDevice()
     {
         return !IsLoading && IsImageVisible && _lastGeneratedImageBytes != null;
     }
@@ -278,103 +269,6 @@ public class ImageGenerationViewModel : INotifyPropertyChanged
             }
         }
     }
-
-    private async Task SaveToDeviceAsync()
-    {
-        if (_lastGeneratedImageBytes == null)
-            return;
-
-        try
-        {
-            // Create a temporary file for saving
-            var fileName = $"GoyIA_Generated_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
-            var tempPath = Path.Combine(FileSystem.CacheDirectory, fileName);
-            
-            // Write to temp file
-            await File.WriteAllBytesAsync(tempPath, _lastGeneratedImageBytes);
-            
-#if ANDROID || IOS
-            // For mobile platforms, save to photo gallery using platform services
-            await SaveToPhotoGalleryAsync(_lastGeneratedImageBytes, fileName);
-#else
-            // For desktop platforms, save to Pictures folder
-            var picturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            var goyiaFolder = Path.Combine(picturesPath, "GoyIA");
-            var savePath = Path.Combine(goyiaFolder, fileName);
-            
-            // Create directory if it doesn't exist
-            Directory.CreateDirectory(goyiaFolder);
-            
-            // Copy file
-            File.Copy(tempPath, savePath, true);
-            
-            // Clean up temp file
-            if (File.Exists(tempPath))
-                File.Delete(tempPath);
-            
-            // Show success dialog with path and option to open folder
-            if (Application.Current?.MainPage != null)
-            {
-                var result = await Application.Current.MainPage.DisplayAlert(
-                    "Success", 
-                    $"Image saved to:\n{savePath}\n\nWould you like to open the folder?", 
-                    "Open Folder", 
-                    "OK");
-                
-                if (result)
-                {
-                    // Open the folder in Windows Explorer
-                    try
-                    {
-                        System.Diagnostics.Process.Start("explorer.exe", goyiaFolder);
-                    }
-                    catch (Exception ex)
-                    {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Info", 
-                            $"Folder path: {goyiaFolder}", 
-                            "OK");
-                    }
-                }
-            }
-#endif
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            StatusMessage = $"Error saving to device: {ex.Message}";
-            
-            // Show error dialog
-            if (Application.Current?.MainPage != null)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error", 
-                    $"Failed to save image to device: {ex.Message}", 
-                    "OK");
-            }
-        }
-    }
-
-#if ANDROID || IOS
-    private async Task SaveToPhotoGalleryAsync(byte[] imageBytes, string fileName)
-    {
-        // This will need platform-specific implementation
-        // For now, let's use the sharing mechanism as a workaround
-        var tempPath = Path.Combine(FileSystem.CacheDirectory, fileName);
-        await File.WriteAllBytesAsync(tempPath, imageBytes);
-        
-        // Use the share API to let user save to photos
-        await Share.RequestAsync(new ShareFileRequest
-        {
-            Title = "Save Image",
-            File = new ShareFile(tempPath)
-        });
-        
-        // Clean up
-        if (File.Exists(tempPath))
-            File.Delete(tempPath);
-    }
-#endif
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

@@ -198,17 +198,7 @@
                     <!-- Action Buttons -->
                     <StackLayout Orientation="Horizontal"
                                  HorizontalOptions="Center"
-                                 Spacing="10">
-                        <Button Text="💾 Save"
-                                Command="{Binding SaveToDeviceCommand}"
-                                CommandParameter="{Binding SelectedImage}"
-                                BackgroundColor="#2196F3"
-                                TextColor="White"
-                                FontSize="12"
-                                HeightRequest="35"
-                                WidthRequest="70"
-                                CornerRadius="17" />
-                        
+                                 Spacing="15">
                         <Button Text="📤 Share"
                                 Command="{Binding ShareImageCommand}"
                                 CommandParameter="{Binding SelectedImage}"
@@ -216,7 +206,7 @@
                                 TextColor="White"
                                 FontSize="12"
                                 HeightRequest="35"
-                                WidthRequest="70"
+                                WidthRequest="80"
                                 CornerRadius="17" />
                         
                         <Button Text="🗑️ Delete"
@@ -226,7 +216,7 @@
                                 TextColor="White"
                                 FontSize="12"
                                 HeightRequest="35"
-                                WidthRequest="70"
+                                WidthRequest="80"
                                 CornerRadius="17" />
                     </StackLayout>
                     

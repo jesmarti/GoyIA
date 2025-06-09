@@ -26,7 +26,6 @@ public class GalleryViewModel : INotifyPropertyChanged
         CloseModalCommand = new Command(CloseModal);
         DeleteImageCommand = new Command<GalleryImage>(async (image) => await DeleteImageAsync(image));
         ShareImageCommand = new Command<GalleryImage>(async (image) => await ShareImageAsync(image));
-        SaveToDeviceCommand = new Command<GalleryImage>(async (image) => await SaveToDeviceAsync(image));
         RefreshCommand = new Command(async () => await RefreshAsync());
         
         // Ensure initial state is properly set
@@ -136,7 +135,6 @@ public class GalleryViewModel : INotifyPropertyChanged
     public ICommand CloseModalCommand { get; }
     public ICommand DeleteImageCommand { get; }
     public ICommand ShareImageCommand { get; }
-    public ICommand SaveToDeviceCommand { get; }
     public ICommand RefreshCommand { get; }
 
     public async Task InitializeAsync()
@@ -330,122 +328,6 @@ public class GalleryViewModel : INotifyPropertyChanged
             }
         }
     }
-
-    private async Task SaveToDeviceAsync(GalleryImage image)
-    {
-        if (image == null) return;
-
-        try
-        {
-            var fullPath = Path.Combine(FileSystem.AppDataDirectory, "Gallery", image.FilePath);
-            
-            if (!File.Exists(fullPath))
-            {
-                HasError = true;
-                StatusMessage = "Image file not found";
-                
-                if (Application.Current?.MainPage != null)
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error", 
-                        "Image file not found. It may have been deleted.", 
-                        "OK");
-                }
-                return;
-            }
-
-            // Read the image bytes
-            var imageBytes = await File.ReadAllBytesAsync(fullPath);
-            
-            // Create a temporary file for saving
-            var fileName = $"GoyIA_{image.Type}_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
-            var tempPath = Path.Combine(FileSystem.CacheDirectory, fileName);
-            
-            // Write to temp file
-            await File.WriteAllBytesAsync(tempPath, imageBytes);
-            
-#if ANDROID || IOS
-            // For mobile platforms, save to photo gallery using platform services
-            await SaveToPhotoGalleryAsync(imageBytes, fileName);
-#else
-            // For desktop platforms, save to Pictures folder
-            var picturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            var goyiaFolder = Path.Combine(picturesPath, "GoyIA");
-            var savePath = Path.Combine(goyiaFolder, fileName);
-            
-            // Create directory if it doesn't exist
-            Directory.CreateDirectory(goyiaFolder);
-            
-            // Copy file
-            File.Copy(tempPath, savePath, true);
-            
-            // Clean up temp file
-            if (File.Exists(tempPath))
-                File.Delete(tempPath);
-            
-            // Show success dialog with path and option to open folder
-            if (Application.Current?.MainPage != null)
-            {
-                var result = await Application.Current.MainPage.DisplayAlert(
-                    "Success", 
-                    $"Image saved to:\n{savePath}\n\nWould you like to open the folder?", 
-                    "Open Folder", 
-                    "OK");
-                
-                if (result)
-                {
-                    // Open the folder in Windows Explorer
-                    try
-                    {
-                        System.Diagnostics.Process.Start("explorer.exe", goyiaFolder);
-                    }
-                    catch (Exception ex)
-                    {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Info", 
-                            $"Folder path: {goyiaFolder}", 
-                            "OK");
-                    }
-                }
-            }
-#endif
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            StatusMessage = $"Error saving to device: {ex.Message}";
-            
-            // Show error dialog
-            if (Application.Current?.MainPage != null)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error", 
-                    $"Failed to save image to device: {ex.Message}", 
-                    "OK");
-            }
-        }
-    }
-
-#if ANDROID || IOS
-    private async Task SaveToPhotoGalleryAsync(byte[] imageBytes, string fileName)
-    {
-        // This will need platform-specific implementation
-        // For now, let's use the sharing mechanism as a workaround
-        var tempPath = Path.Combine(FileSystem.CacheDirectory, fileName);
-        await File.WriteAllBytesAsync(tempPath, imageBytes);
-        
-        // Use the share API to let user save to photos
-        await Share.RequestAsync(new ShareFileRequest
-        {
-            Title = "Save Image",
-            File = new ShareFile(tempPath)
-        });
-        
-        // Clean up
-        if (File.Exists(tempPath))
-            File.Delete(tempPath);
-    }
-#endif
 
     public ImageSource GetImageSource(GalleryImage image)
     {
