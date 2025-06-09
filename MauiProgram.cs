@@ -26,10 +26,12 @@ namespace GoyIA
 
             // Register ViewModels
             builder.Services.AddTransient<ImageGenerationViewModel>();
+            builder.Services.AddTransient<ImageEditingViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
 
             // Register Pages
             builder.Services.AddTransient<ImageGenerationPage>();
+            builder.Services.AddTransient<ImageEditingPage>();
             builder.Services.AddTransient<SettingsPage>();
 
 #if DEBUG

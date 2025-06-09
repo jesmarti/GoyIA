@@ -8,11 +8,32 @@
     Shell.FlyoutBehavior="Flyout"
     Title="GoyIA">
 
-    <FlyoutItem Title="Main">
+    <!-- Main TabBar for primary navigation -->
+    <TabBar>
         <ShellContent
-            Title="Generate Image"
+            Title="Generate"
+            Icon="add_circle.png"
             ContentTemplate="{DataTemplate pages:ImageGenerationPage}"
             Route="ImageGeneration" />
+        
+        <ShellContent
+            Title="Edit"
+            Icon="edit.png"
+            ContentTemplate="{DataTemplate pages:ImageEditingPage}"
+            Route="ImageEditing" />
+    </TabBar>
+
+    <!-- FlyoutItems for secondary navigation -->
+    <FlyoutItem Title="Navigation">
+        <ShellContent
+            Title="Generate Images"
+            ContentTemplate="{DataTemplate pages:ImageGenerationPage}"
+            Route="FlyoutImageGeneration" />
+        
+        <ShellContent
+            Title="Edit Images"
+            ContentTemplate="{DataTemplate pages:ImageEditingPage}"
+            Route="FlyoutImageEditing" />
     </FlyoutItem>
 
     <FlyoutItem Title="Settings">

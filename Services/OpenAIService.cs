@@ -43,16 +43,69 @@ public class OpenAIService
             if (response.IsSuccessStatusCode)
             {
                 var responseJson = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<ImageGenerationResponse>(responseJson, _jsonOptions);
+                
+                // Add some debugging to see what we're getting back
+                System.Diagnostics.Debug.WriteLine($"OpenAI API Response: {responseJson}");
+                
+                var result = JsonSerializer.Deserialize<ImageGenerationResponse>(responseJson, _jsonOptions);
+                
+                // Debug the deserialized result
+                if (result?.Data?.Any() == true)
+                {
+                    System.Diagnostics.Debug.WriteLine($"First image B64Json length: '{result.Data.First().B64Json?.Length}'");
+                }
+                
+                return result;
             }
             else
             {
-                throw new HttpRequestException($"API request failed with status code: {response.StatusCode}");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"API request failed with status code: {response.StatusCode}. Response: {errorContent}");
             }
         }
         catch (Exception ex)
         {
             throw new Exception($"Failed to generate image: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<ImageGenerationResponse?> EditImageAsync(string prompt, Stream imageStream, string fileName)
+    {
+        try
+        {
+            using var formContent = new MultipartFormDataContent();
+            
+            // Add the image file
+            var imageContent = new StreamContent(imageStream);
+            imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+            formContent.Add(imageContent, "image", fileName);
+            
+            // Add other parameters
+            formContent.Add(new StringContent("gpt-image-1"), "model");
+            formContent.Add(new StringContent(prompt), "prompt");
+            formContent.Add(new StringContent("1024x1024"), "size");
+            formContent.Add(new StringContent("low"), "quality");
+            
+            var response = await _httpClient.PostAsync("images/edits", formContent);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                
+                System.Diagnostics.Debug.WriteLine($"OpenAI Edit API Response: {responseJson}");
+                
+                var result = JsonSerializer.Deserialize<ImageGenerationResponse>(responseJson, _jsonOptions);
+                return result;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"API request failed with status code: {response.StatusCode}. Response: {errorContent}");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to edit image: {ex.Message}", ex);
         }
     }
 } 

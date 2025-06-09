@@ -28,5 +28,9 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSCameraUsageDescription</key>
+	<string>GoyIA needs access to your camera to take photos for AI image editing.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>GoyIA needs access to your photo library to select images for AI editing.</string>
 </dict>
 </plist>
