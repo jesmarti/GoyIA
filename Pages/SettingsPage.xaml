@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="GoyIA.Pages.SettingsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Settings"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+            <Label Text="Settings" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   Margin="0,20,0,30" />
+
+            <Border BackgroundColor="White" 
+                    Stroke="#E0E0E0" 
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+                <StackLayout Padding="20" Spacing="15">
+                    <Label Text="OpenAI API Key" 
+                           FontSize="16" 
+                           FontAttributes="Bold" />
+                    
+                    <Entry x:Name="ApiKeyEntry"
+                           Text="{Binding ApiKey}"
+                           Placeholder="Enter your OpenAI API key"
+                           PlaceholderColor="#9E9E9E"
+                           TextColor="Black"
+                           FontSize="14"
+                           IsPassword="True" />
+                    
+                    <Label Text="Your API key is stored securely on your device and is only used to communicate with OpenAI's servers." 
+                           FontSize="12" 
+                           TextColor="#9E9E9E" />
+                </StackLayout>
+            </Border>
+
+            <Button Text="Save Settings"
+                    Command="{Binding SaveSettingsCommand}"
+                    BackgroundColor="#6200EE"
+                    TextColor="White"
+                    FontSize="16"
+                    HeightRequest="50"
+                    CornerRadius="25" />
+
+            <Label Text="{Binding StatusMessage}"
+                   FontSize="14"
+                   TextColor="#4CAF50"
+                   IsVisible="{Binding HasStatusMessage}"
+                   HorizontalOptions="Center" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage> 

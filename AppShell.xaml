@@ -4,12 +4,22 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:GoyIA"
+    xmlns:pages="clr-namespace:GoyIA.Pages"
     Shell.FlyoutBehavior="Flyout"
     Title="GoyIA">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <FlyoutItem Title="Main">
+        <ShellContent
+            Title="Generate Image"
+            ContentTemplate="{DataTemplate pages:ImageGenerationPage}"
+            Route="ImageGeneration" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Settings">
+        <ShellContent
+            Title="Settings"
+            ContentTemplate="{DataTemplate pages:SettingsPage}"
+            Route="Settings" />
+    </FlyoutItem>
 
 </Shell>
